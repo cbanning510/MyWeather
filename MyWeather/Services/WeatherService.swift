@@ -7,11 +7,12 @@
 
 import Foundation
 
+//let notificationKey = "com.chrisbanning/location"
+
 class WeatherService {
     static let shared = WeatherService()
     
-    //let URL_BASE = "https://api.openweathermap.org/data/2.5/weather?"
-    let URL_BASE = "https://api.openweathermap.org/data/2.5/weather?appid=cfd15c260a336ab7559d15b7e1a55d96&lat=39.7039483&lon=-75.7831014&units=imperial"
+    var URL_BASE = ""
     
     let session = URLSession(configuration: .default)
     
@@ -22,7 +23,7 @@ class WeatherService {
             
             DispatchQueue.main.sync {
                 if let error = error {
-                    onError(error.localizedDescription)
+                    onError("dispatchqueue error: \(error.localizedDescription)")
                     return
                 }
                 
@@ -30,19 +31,18 @@ class WeatherService {
                     onError("Invalid data or response")
                     return
                 }
-                // Create Weather data model!!
+                
                 do {
                     if response.statusCode == 200 {
                         let currentWeather = try JSONDecoder().decode(CurrentWeather.self, from: data)
-                        print("\ncurrentWeather: \(currentWeather)")
                         onSuccess(currentWeather)
                     } else {
                         let err = try JSONDecoder().decode(APIError.self, from: data)
-                        onError(err.message)
+                        onError("error decoding: \(err.message)")
                     }
                 }
                 catch {
-                    debugPrint(error.localizedDescription)
+                    debugPrint("debug: \(error)")
                 }
             }
         }

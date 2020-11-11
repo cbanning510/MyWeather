@@ -9,15 +9,14 @@ import UIKit
 import CoreLocation
 
 protocol LocationDelegate {
-    func getWeather(latitude: String, longitude: String)
+    func getLocationCoords(latitude: String, longitude: String)
 }
 
 class GeoLocation: UIViewController, CLLocationManagerDelegate {    
     static let shared = GeoLocation()
-    var delegate: LocationDelegate?
     
+    var delegate: LocationDelegate?
     var locationManager:CLLocationManager!
-    var currentLat: CLLocationDegrees!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,12 +25,6 @@ class GeoLocation: UIViewController, CLLocationManagerDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         getGPSLocation()
-    }
-    
-    func getLatitude(completion: @escaping (_ lat: CLLocationDegrees) -> Void) {
-        if let currentLat = currentLat {
-            completion(currentLat)
-        }
     }
     
     func getGPSLocation() {
@@ -53,7 +46,7 @@ class GeoLocation: UIViewController, CLLocationManagerDelegate {
         
         manager.stopUpdatingLocation()
     
-        delegate?.getWeather(latitude: lat, longitude: long)
+        delegate?.getLocationCoords(latitude: lat, longitude: long)
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error)
