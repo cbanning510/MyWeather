@@ -18,6 +18,7 @@ class ViewController: UIViewController, LocationDelegate {
     @IBAction func buttonPressed(_ sender: UIButton) {
         BASE_URL += "lat=\(latitude!)&lon=\(longitude!)&appid=\(apikey)"
         print(BASE_URL)
+        getWeather()
     }
     
     func getWeather(latitude: String, longitude: String) {
@@ -31,6 +32,16 @@ class ViewController: UIViewController, LocationDelegate {
         super.viewDidLoad()
         GeoLocation.shared.delegate = self
         GeoLocation.shared.getGPSLocation()
+        
+    }
+    
+    func getWeather() {
+        WeatherService.shared.getWeather { (currentWeather) in
+            print(currentWeather.weather)
+        } onError: { (err) in
+            print(err)
+        }
+
     }
 }
 
