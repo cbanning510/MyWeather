@@ -9,13 +9,10 @@ import Foundation
 
 class WeatherService {
     static let shared = WeatherService()
-    
-    var URL_BASE = ""
-    
     let session = URLSession(configuration: .default)
     
-    func getCurrentWeather(onSuccess: @escaping (CurrentWeather) -> Void, onError: @escaping (String) -> Void) {
-        let url = URL(string: "\(URL_BASE)")
+    func getCurrentWeather(lat: String, long: String, onSuccess: @escaping (CurrentWeather) -> Void, onError: @escaping (String) -> Void) {
+        let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?appid=cfd15c260a336ab7559d15b7e1a55d96&lat=\(lat)&lon=\(long)&units=imperial")
         
         let task = session.dataTask(with: url!) { (data, response, error) in
             
@@ -39,11 +36,13 @@ class WeatherService {
                         onError("error decoding: \(err.message)")
                     }
                 }
+                
                 catch {
                     debugPrint("debug: \(error)")
                 }
             }
         }
+        
         task.resume()
     }
 }

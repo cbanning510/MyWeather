@@ -81,18 +81,19 @@ class ViewController: UIViewController, LocationDelegate {
     }
     
     @IBAction func todayPressed(_ sender: UIButton) {
+        // shows forecast by 2 hour intervals
     }
     
     @IBAction func thisWeekPressed(_ sender: UIButton) {
+        // shows forecast for 5 days
     }
     
     func getLocationCoords(latitude: String, longitude: String) {
-        WeatherService.shared.URL_BASE = "https://api.openweathermap.org/data/2.5/weather?appid=cfd15c260a336ab7559d15b7e1a55d96&lat=\(latitude)&lon=\(longitude)&units=imperial"
-        getWeather()
+        getWeather(lat: latitude, long: longitude)
     }
     
-    func getWeather() {
-        WeatherService.shared.getCurrentWeather { [self] (currentWeather) in
+    func getWeather(lat: String, long: String) {
+        WeatherService.shared.getCurrentWeather(lat: lat, long: long) { [self] (currentWeather) in
             self.currentWeather = currentWeather
             currentTempLabel.text = String(Int((currentWeather.main!.temp))) + "°"
             cityLabel.text = currentWeather.name
@@ -103,7 +104,6 @@ class ViewController: UIViewController, LocationDelegate {
         } onError: { (err) in
             print(err)
         }
-
     }
 }
 

@@ -12,20 +12,10 @@ protocol LocationDelegate {
     func getLocationCoords(latitude: String, longitude: String)
 }
 
-class GeoLocation: UIViewController, CLLocationManagerDelegate {    
+class GeoLocation: NSObject, CLLocationManagerDelegate {
     static let shared = GeoLocation()
-    
     var delegate: LocationDelegate?
     var locationManager:CLLocationManager!
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        getGPSLocation()
-    }
     
     func getGPSLocation() {
         locationManager = CLLocationManager()
