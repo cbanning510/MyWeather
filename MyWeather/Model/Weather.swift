@@ -45,7 +45,7 @@ struct Current: Codable {
     let wind_speed: Double
     let wind_deg: Int
     let weather: Array<Weather>
-    let rain: Rain
+    let rain: Rain?
 }
 
 struct Rain: Codable {

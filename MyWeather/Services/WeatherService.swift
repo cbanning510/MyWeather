@@ -7,8 +7,6 @@
 
 import Foundation
 
-//let notificationKey = "com.chrisbanning/location"
-
 class WeatherService {
     static let shared = WeatherService()
     
@@ -17,9 +15,10 @@ class WeatherService {
     let session = URLSession(configuration: .default)
     
     func getWeather(onSuccess: @escaping (CurrentWeather) -> Void, onError: @escaping (String) -> Void) {
-        let url = URL(string: "\(URL_BASE)")!
+        //let url = URL(string: "\(URL_BASE)")!
+        let url = URL(string: "https://api.openweathermap.org/data/2.5/onecall?appid=cfd15c260a336ab7559d15b7e1a55d96&lat=39.7039765&lon=-75.7831122&units=imperial")
         
-        let task = session.dataTask(with: url) { (data, response, error) in
+        let task = session.dataTask(with: url!) { (data, response, error) in
             
             DispatchQueue.main.sync {
                 if let error = error {
