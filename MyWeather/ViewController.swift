@@ -39,6 +39,7 @@ class ViewController: UIViewController, LocationDelegate {
     
     var locationData: CLLocationManager?
     var currentWeather: CurrentWeather?
+    var forecast: Forecast?
     
     var currentTime = String()
     var currentTemp = Int()
@@ -68,8 +69,7 @@ class ViewController: UIViewController, LocationDelegate {
         default:
             currentWeatherImage.image = UIImage(named: "Partially Cloudy")
         }
-    }
-    
+    }    
     
     func getCurrentDate() {
         let now = Date()
@@ -90,6 +90,7 @@ class ViewController: UIViewController, LocationDelegate {
     
     func getLocationCoords(latitude: String, longitude: String) {
         getWeather(lat: latitude, long: longitude)
+        getForecast(lat: latitude, long: longitude)
     }
     
     func getWeather(lat: String, long: String) {
@@ -98,9 +99,17 @@ class ViewController: UIViewController, LocationDelegate {
             currentTempLabel.text = String(Int((currentWeather.main!.temp))) + "°"
             cityLabel.text = currentWeather.name
             currentConditionsLabel.text = currentWeather.weather![0].description
-            getWeatherImage(id: currentWeather.weather![0].id)
-            
-            print("currentWeather.weather: \(currentWeather)")
+            getWeatherImage(id: currentWeather.weather![0].id)            
+           //print("currentWeather.weather: \(currentWeather)")
+        } onError: { (err) in
+            print(err)
+        }
+    }
+    
+    func getForecast(lat: String, long: String) {
+        WeatherService.shared.getForecast(lat: lat, long: long) { [self] (forecast) in
+            self.forecast = forecast
+            print("forecast.weather: \(forecast.list![0])")
         } onError: { (err) in
             print(err)
         }

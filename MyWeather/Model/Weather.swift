@@ -14,6 +14,18 @@ struct Weather: Codable {
     let icon: String
 }
 
+struct ThreeHourMain: Codable {
+    let temp: Double
+    let feels_like: Double
+    let temp_min: Double
+    let temp_max: Double
+    let sea_level: Int
+    let grnd_level: Int
+    let pressure: Double
+    let humidity: Double
+    let temp_kf: Double
+}
+
 struct Main: Codable {
     let temp: Double
     let feels_like: Double
@@ -37,11 +49,15 @@ struct Clouds: Codable {
 }
 
 struct Sys: Codable {
-    let type: Int
-    let id: Int
+    let type: Int?
+    let id: Int?
     let country: String
     let sunrise: Int
     let sunset: Int
+}
+
+struct ThreeHourSys: Codable {
+    let pod: String
 }
 
 struct CurrentWeather: Codable {
@@ -61,16 +77,24 @@ struct CurrentWeather: Codable {
     let cod: Int?
 }
 
-//struct CurrentWeather: Codable {
-//    let lat: Double
-//    let lon: Double
-//    let timezone: String
-//    let timezone_offset: Int
-//    let current: Current
-//    let minutely: Array<Minute>
-//    let hourly: Array<Hourly>?
-//    let daily: Array<Daily>?
-//}
+struct ThreeHourInterval: Codable {
+    let dt: Int
+    let main: ThreeHourMain
+    let weather: Array<Weather>?
+    let clouds: Clouds
+    let wind: Wind
+    let visibility: Int
+    let pop: Double
+    let sys: ThreeHourSys?
+    let dt_txt: String    
+}
+
+struct Forecast: Codable {
+    let cod: String
+    let message: Int
+    let cnt: Int
+    let list: [ThreeHourInterval]?
+}
 
 struct Minute: Codable {
     let dt: Int
