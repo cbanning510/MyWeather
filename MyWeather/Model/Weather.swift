@@ -14,16 +14,63 @@ struct Weather: Codable {
     let icon: String
 }
 
-struct CurrentWeather: Codable {
-    let lat: Double
-    let lon: Double
-    let timezone: String
-    let timezone_offset: Int
-    let current: Current
-    let minutely: Array<Minute>
-    let hourly: Array<Hourly>?
-    let daily: Array<Daily>?
+struct Main: Codable {
+    let temp: Double
+    let feels_like: Double
+    let temp_min: Double
+    let temp_max: Double
+    let pressure: Double
+    let humidity: Double
 }
+
+struct Wind: Codable {
+    let speed: Double
+    let deg: Int
+}
+
+struct Rain: Codable {
+    let lh: Double?
+}
+
+struct Clouds: Codable {
+    let all: Int
+}
+
+struct Sys: Codable {
+    let type: Int
+    let id: Int
+    let country: String
+    let sunrise: Int
+    let sunset: Int
+}
+
+struct CurrentWeather: Codable {
+    let coord: Coord?
+    let weather: Array<Weather>?
+    let base: String?
+    let main: Main?
+    let visibility: Int?
+    let wind: Wind?
+    let rain: Rain?
+    let clouds: Clouds?
+    let dt: Int?
+    let sys: Sys?
+    let timezone: Int?
+    let id: Int?
+    let name: String?
+    let cod: Int?
+}
+
+//struct CurrentWeather: Codable {
+//    let lat: Double
+//    let lon: Double
+//    let timezone: String
+//    let timezone_offset: Int
+//    let current: Current
+//    let minutely: Array<Minute>
+//    let hourly: Array<Hourly>?
+//    let daily: Array<Daily>?
+//}
 
 struct Minute: Codable {
     let dt: Int
@@ -45,11 +92,7 @@ struct Current: Codable {
     let wind_speed: Double
     let wind_deg: Int
     let weather: Array<Weather>
-    let rain: Rain?
-}
-
-struct Rain: Codable {
-    let lh: Double?
+   // let rain: Rain?
 }
 
 struct Hourly: Codable {
@@ -101,8 +144,8 @@ struct Temp: Codable {
 }
     
 struct Coord: Codable {
-    let lon: Double
-    let lat: Double
+    let lon: Double?
+    let lat: Double?
 }
 
 struct Base: Codable {
