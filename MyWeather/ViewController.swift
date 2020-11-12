@@ -40,7 +40,10 @@ class ViewController: UIViewController, LocationDelegate {
     var locationData: CLLocationManager?
     var currentWeather: CurrentWeather?
     var forecast: Forecast?
-    
+    var fiveDayForecast = [ThreeHourInterval]()
+        // main.temp - temp
+        // weather.id - image
+        // dt - time
     var currentTime = String()
     var currentTemp = Int()
 
@@ -99,7 +102,7 @@ class ViewController: UIViewController, LocationDelegate {
             currentTempLabel.text = String(Int((currentWeather.main!.temp))) + "°"
             cityLabel.text = currentWeather.name
             currentConditionsLabel.text = currentWeather.weather![0].description
-            getWeatherImage(id: currentWeather.weather![0].id)            
+            getWeatherImage(id: currentWeather.weather![0].id)
            //print("currentWeather.weather: \(currentWeather)")
         } onError: { (err) in
             print(err)
@@ -110,6 +113,7 @@ class ViewController: UIViewController, LocationDelegate {
         WeatherService.shared.getForecast(lat: lat, long: long) { [self] (forecast) in
             self.forecast = forecast
             print("forecast.weather: \(forecast.list![0])")
+            print("\ntype of forecast.weather: \(type(of:(forecast.list![0])))")
         } onError: { (err) in
             print(err)
         }
