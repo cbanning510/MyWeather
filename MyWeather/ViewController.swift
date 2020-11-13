@@ -40,21 +40,23 @@ class ViewController: UIViewController, LocationDelegate {
     var locationData: CLLocationManager?
     var currentWeather: CurrentWeather?
     var forecast: Forecast?
-    var fiveDayForecast = [ThreeHourInterval]()
+    
     var hourlyForecastTemps = [Double]()
     var hourlyForecastCondition = [Int]()
     var hourlyForecastTimes = [Int]()
     var fiveDayForecastTemps = [Double]()
     var fiveDayForecastCondition = [Int]()
     var fiveDayForecastTimes = [Int]()
-    var currentTime = String()
-    var currentTemp = Int()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         GeoLocation.shared.delegate = self
         GeoLocation.shared.getGPSLocation()
         getCurrentDate()
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
     }
     
     func getWeatherImage(id: Int) -> String {
@@ -74,31 +76,44 @@ class ViewController: UIViewController, LocationDelegate {
         default:
             return "Partially Cloudy"
         }
-    }    
+    }
+    
+    func getBackgroundColor(id: Int) -> UIColor {
+        switch id {
+        case 200...232:
+            return UIColor(cgColor: #colorLiteral(red: 0.1764705926, green: 0.01176470611, blue: 0.5607843399, alpha: 1))
+        case 300...321, 500...531:
+            return UIColor(cgColor: #colorLiteral(red: 0.2623462379, green: 0.3999766409, blue: 0.6452640891, alpha: 1))
+        case 600...622:
+            return UIColor(cgColor: #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1))
+        case 800:
+            return UIColor(cgColor: #colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1))
+        case 801...802:
+            return UIColor(cgColor: #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1))
+        case 803...804:
+            return UIColor(cgColor: #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1))
+        default:
+            return UIColor(cgColor: #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1))
+        }
+    }
     
     func getCurrentDate() {
         let now = Date()
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = now.dateFormatWithSuffix()
         let datetime = dateFormatter.string(from: now)
-        currentTime = datetime
-        dateLabel.text = currentTime
+        dateLabel.text = datetime
     }
     
-    func translateToDayOfWeek(unixDate: Int) -> String {
+    func translateTime(unixDate: Int, forecast: String) -> String {
         let unixTimeInterval = Double(unixDate)
         let date = Date(timeIntervalSince1970: unixTimeInterval)
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EE"
-        let strDate = dateFormatter.string(from: date)
-        return strDate
-    }
-    
-    func translateToTimeOfDay(unixDate: Int) -> String {
-        let unixTimeInterval = Double(unixDate)
-        let date = Date(timeIntervalSince1970: unixTimeInterval)
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
+        if forecast == "hourly" {
+            dateFormatter.dateFormat = "HH:mm"
+        } else {
+            dateFormatter.dateFormat = "EE"
+        }
         let strDate = dateFormatter.string(from: date)
         return strDate
     }
@@ -107,7 +122,7 @@ class ViewController: UIViewController, LocationDelegate {
         if hourlyForecastCondition.count == 0 {
             populateHourlyForecast()
         }
-        updateHourlyForecast()
+        updateForecast(forecast: "hourly")
         thisWeekButton.titleLabel!.font = UIFont(name: "Avenir Light", size: 20)
         todayButton.titleLabel!.font = UIFont(name: "Avenir Light", size: 26)
     }
@@ -116,33 +131,26 @@ class ViewController: UIViewController, LocationDelegate {
         if fiveDayForecastCondition.count == 0 {
             populateFiveDayForecast()
         }
-        updateFiveDayForecast()
+        updateForecast(forecast: "weekly")
         thisWeekButton.titleLabel!.font = UIFont(name: "Avenir Light", size: 26)
         todayButton.titleLabel!.font = UIFont(name: "Avenir Light", size: 20)
     }
     
-    func updateFiveDayForecast() {
+    func updateForecast(forecast: String) {
         var imageString: String
         let forecastTimeLabels = [firstTimeLabel, secondTimeLabel, thirdTimeLabel, fourthTimeLabel, fifthTimeLabel]
         let forecastImages = [firstImage, secondImage, thirdImage, fourthImage, fifthImage]
         let forecastTempLabels = [firstTempLabel, secondTempLabel, thirdTempLabel, fourthTempLabel, fifthTempLabel]
         for i in 0...4 {
-            forecastTimeLabels[i]!.text = translateToDayOfWeek(unixDate: fiveDayForecastTimes[i])
-            forecastTempLabels[i]!.text = String(Int(fiveDayForecastTemps[i])) + "°"
-            imageString = getWeatherImage(id: fiveDayForecastCondition[i])
-            forecastImages[i]?.image = UIImage(named: imageString)
-        }
-    }
-    
-    func updateHourlyForecast() {
-        var imageString: String
-        let forecastTimeLabels = [firstTimeLabel, secondTimeLabel, thirdTimeLabel, fourthTimeLabel, fifthTimeLabel]
-        let forecastImages = [firstImage, secondImage, thirdImage, fourthImage, fifthImage]
-        let forecastTempLabels = [firstTempLabel, secondTempLabel, thirdTempLabel, fourthTempLabel, fifthTempLabel]
-        for i in 0...4 {
-            forecastTimeLabels[i]!.text = translateToTimeOfDay(unixDate: hourlyForecastTimes[i])
-            forecastTempLabels[i]!.text = String(Int(hourlyForecastTemps[i])) + "°"
-            imageString = getWeatherImage(id: hourlyForecastCondition[i])
+            if forecast == "hourly" {
+                forecastTimeLabels[i]!.text = translateTime(unixDate: hourlyForecastTimes[i], forecast: "hourly")
+                forecastTempLabels[i]!.text = String(Int(hourlyForecastTemps[i])) + "°"
+                imageString = getWeatherImage(id: hourlyForecastCondition[i])
+            } else {
+                forecastTimeLabels[i]!.text = translateTime(unixDate: fiveDayForecastTimes[i], forecast: "weekly")
+                forecastTempLabels[i]!.text = String(Int(fiveDayForecastTemps[i])) + "°"
+                imageString = getWeatherImage(id: fiveDayForecastCondition[i])
+            }
             forecastImages[i]?.image = UIImage(named: imageString)
         }
     }
@@ -177,6 +185,7 @@ class ViewController: UIViewController, LocationDelegate {
             cityLabel.text = currentWeather.name
             currentConditionsLabel.text = currentWeather.weather![0].description
             currentWeatherImage.image = UIImage(named: getWeatherImage(id: currentWeather.weather![0].id))
+            view.backgroundColor = getBackgroundColor(id: currentWeather.weather![0].id)
         } onError: { (err) in
             print(err)
         }
@@ -186,7 +195,7 @@ class ViewController: UIViewController, LocationDelegate {
         WeatherService.shared.getForecast(lat: lat, long: long) { [self] (forecast) in
             self.forecast = forecast
             populateHourlyForecast()
-            updateHourlyForecast()
+            updateForecast(forecast: "hourly")
         } onError: { (err) in
             print(err)
         }
