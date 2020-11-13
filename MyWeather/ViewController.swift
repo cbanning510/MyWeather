@@ -17,33 +17,36 @@ class ViewController: UIViewController, LocationDelegate {
     @IBOutlet weak var todayButton: UIButton!
     @IBOutlet weak var thisWeekButton: UIButton!
     
-    @IBOutlet weak var hour0TimeLabel: UILabel!
-    @IBOutlet weak var Hour0Image: UIImageView!
-    @IBOutlet weak var Hour0TempLabel: UILabel!
+    @IBOutlet weak var firstTimeLabel: UILabel!
+    @IBOutlet weak var firstImage: UIImageView!
+    @IBOutlet weak var firstTempLabel: UILabel!
     
-    @IBOutlet weak var hour2TimeLabel: UILabel!
-    @IBOutlet weak var Hour2Image: UIImageView!
-    @IBOutlet weak var Hour2TempLabel: UILabel!
+    @IBOutlet weak var secondTimeLabel: UILabel!
+    @IBOutlet weak var secondImage: UIImageView!
+    @IBOutlet weak var secondTempLabel: UILabel!
     
-    @IBOutlet weak var hour4TimeLabel: UILabel!
-    @IBOutlet weak var Hour4Image: UIImageView!
-    @IBOutlet weak var Hour4TempLabel: UILabel!
+    @IBOutlet weak var thirdTimeLabel: UILabel!
+    @IBOutlet weak var thirdImage: UIImageView!
+    @IBOutlet weak var thirdTempLabel: UILabel!
     
-    @IBOutlet weak var hour6TimeLabel: UILabel!
-    @IBOutlet weak var Hour6Image: UIImageView!
-    @IBOutlet weak var Hour6TempLabel: UILabel!
+    @IBOutlet weak var fourthTimeLabel: UILabel!
+    @IBOutlet weak var fourthImage: UIImageView!
+    @IBOutlet weak var fourthTempLabel: UILabel!
     
-    @IBOutlet weak var hour8TimeLabel: UILabel!
-    @IBOutlet weak var Hour8Image: UIImageView!
-    @IBOutlet weak var Hour8TempLabel: UILabel!
+    @IBOutlet weak var fifthTimeLabel: UILabel!
+    @IBOutlet weak var fifthImage: UIImageView!
+    @IBOutlet weak var fifthTempLabel: UILabel!
     
     var locationData: CLLocationManager?
     var currentWeather: CurrentWeather?
     var forecast: Forecast?
     var fiveDayForecast = [ThreeHourInterval]()
-        // main.temp - temp
-        // weather.id - image
-        // dt - time
+    var hourlyForecastTemps = [Double]()
+    var hourlyForecastCondition = [Int]()
+    var hourlyForecastTimes = [Int]()
+    var fiveDayForecastTemps = [Double]()
+    var fiveDayForecastCondition = [Int]()
+    var fiveDayForecastTimes = [Int]()
     var currentTime = String()
     var currentTemp = Int()
 
@@ -52,25 +55,24 @@ class ViewController: UIViewController, LocationDelegate {
         GeoLocation.shared.delegate = self
         GeoLocation.shared.getGPSLocation()
         getCurrentDate()
-        //configureUI()
     }
     
-    func getWeatherImage(id: Int) {
+    func getWeatherImage(id: Int) -> String {
         switch id {
         case 200...232:
-            currentWeatherImage.image = UIImage(named: "Lightning")
+            return "Lightning"
         case 300...321, 500...531:
-            currentWeatherImage.image = UIImage(named: "Rainy")
+            return "Rainy"
         case 600...622:
-            currentWeatherImage.image = UIImage(named: "Snow")
+            return "Snow"
         case 800:
-            currentWeatherImage.image = UIImage(named: "Sunny")
+            return "Sunny"
         case 801...802:
-            currentWeatherImage.image = UIImage(named: "Partially Cloudy")
+            return "Partially Cloudy"
         case 803...804:
-            currentWeatherImage.image = UIImage(named: "Cloudy")
+            return "Cloudy"
         default:
-            currentWeatherImage.image = UIImage(named: "Partially Cloudy")
+            return "Partially Cloudy"
         }
     }    
     
@@ -83,27 +85,98 @@ class ViewController: UIViewController, LocationDelegate {
         dateLabel.text = currentTime
     }
     
+    func translateToDayOfWeek(unixDate: Int) -> String {
+        let unixTimeInterval = Double(unixDate)
+        let date = Date(timeIntervalSince1970: unixTimeInterval)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EE"
+        let strDate = dateFormatter.string(from: date)
+        return strDate
+    }
+    
+    func translateToTimeOfDay(unixDate: Int) -> String {
+        let unixTimeInterval = Double(unixDate)
+        let date = Date(timeIntervalSince1970: unixTimeInterval)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        let strDate = dateFormatter.string(from: date)
+        return strDate
+    }
+    
     @IBAction func todayPressed(_ sender: UIButton) {
-        // shows forecast by 2 hour intervals
+        if hourlyForecastCondition.count == 0 {
+            populateHourlyForecast()
+        }
+        updateHourlyForecast()
+        thisWeekButton.titleLabel!.font = UIFont(name: "Avenir Light", size: 20)
+        todayButton.titleLabel!.font = UIFont(name: "Avenir Light", size: 26)
     }
     
     @IBAction func thisWeekPressed(_ sender: UIButton) {
-        // shows forecast for 5 days
+        if fiveDayForecastCondition.count == 0 {
+            populateFiveDayForecast()
+        }
+        updateFiveDayForecast()
+        thisWeekButton.titleLabel!.font = UIFont(name: "Avenir Light", size: 26)
+        todayButton.titleLabel!.font = UIFont(name: "Avenir Light", size: 20)
+    }
+    
+    func updateFiveDayForecast() {
+        var imageString: String
+        let forecastTimeLabels = [firstTimeLabel, secondTimeLabel, thirdTimeLabel, fourthTimeLabel, fifthTimeLabel]
+        let forecastImages = [firstImage, secondImage, thirdImage, fourthImage, fifthImage]
+        let forecastTempLabels = [firstTempLabel, secondTempLabel, thirdTempLabel, fourthTempLabel, fifthTempLabel]
+        for i in 0...4 {
+            forecastTimeLabels[i]!.text = translateToDayOfWeek(unixDate: fiveDayForecastTimes[i])
+            forecastTempLabels[i]!.text = String(Int(fiveDayForecastTemps[i])) + "°"
+            imageString = getWeatherImage(id: fiveDayForecastCondition[i])
+            forecastImages[i]?.image = UIImage(named: imageString)
+        }
+    }
+    
+    func updateHourlyForecast() {
+        var imageString: String
+        let forecastTimeLabels = [firstTimeLabel, secondTimeLabel, thirdTimeLabel, fourthTimeLabel, fifthTimeLabel]
+        let forecastImages = [firstImage, secondImage, thirdImage, fourthImage, fifthImage]
+        let forecastTempLabels = [firstTempLabel, secondTempLabel, thirdTempLabel, fourthTempLabel, fifthTempLabel]
+        for i in 0...4 {
+            forecastTimeLabels[i]!.text = translateToTimeOfDay(unixDate: hourlyForecastTimes[i])
+            forecastTempLabels[i]!.text = String(Int(hourlyForecastTemps[i])) + "°"
+            imageString = getWeatherImage(id: hourlyForecastCondition[i])
+            forecastImages[i]?.image = UIImage(named: imageString)
+        }
+    }
+    
+    func populateFiveDayForecast() {
+        guard let forecast = forecast else { return }
+        for i in stride(from: 0, to: 39, by: 8) {
+            fiveDayForecastTemps.append(forecast.list![i].main.temp)
+            fiveDayForecastTimes.append(forecast.list![i].dt)
+            fiveDayForecastCondition.append(forecast.list![i].weather![0].id)
+        }
+    }
+    
+    func populateHourlyForecast() {
+        guard let forecast = forecast else { return }
+        for i in stride(from: 0, to: 5, by: 1) {
+            hourlyForecastTemps.append(forecast.list![i].main.temp)
+            hourlyForecastTimes.append(forecast.list![i].dt)
+            hourlyForecastCondition.append(forecast.list![i].weather![0].id)
+        }
     }
     
     func getLocationCoords(latitude: String, longitude: String) {
-        getWeather(lat: latitude, long: longitude)
+        getCurrentWeather(lat: latitude, long: longitude)
         getForecast(lat: latitude, long: longitude)
     }
     
-    func getWeather(lat: String, long: String) {
+    func getCurrentWeather(lat: String, long: String) {
         WeatherService.shared.getCurrentWeather(lat: lat, long: long) { [self] (currentWeather) in
             self.currentWeather = currentWeather
             currentTempLabel.text = String(Int((currentWeather.main!.temp))) + "°"
             cityLabel.text = currentWeather.name
             currentConditionsLabel.text = currentWeather.weather![0].description
-            getWeatherImage(id: currentWeather.weather![0].id)
-           //print("currentWeather.weather: \(currentWeather)")
+            currentWeatherImage.image = UIImage(named: getWeatherImage(id: currentWeather.weather![0].id))
         } onError: { (err) in
             print(err)
         }
@@ -112,8 +185,8 @@ class ViewController: UIViewController, LocationDelegate {
     func getForecast(lat: String, long: String) {
         WeatherService.shared.getForecast(lat: lat, long: long) { [self] (forecast) in
             self.forecast = forecast
-            print("forecast.weather: \(forecast.list![0])")
-            print("\ntype of forecast.weather: \(type(of:(forecast.list![0])))")
+            populateHourlyForecast()
+            updateHourlyForecast()
         } onError: { (err) in
             print(err)
         }
@@ -124,6 +197,10 @@ extension Date {
 
     func dateFormatWithSuffix() -> String {
         return "EEEE, dd'\(self.daySuffix())' MMM"
+    }
+    
+    func dateFormatDayOfWeek() -> String {
+        return "EEEE"
     }
 
     func daySuffix() -> String {
