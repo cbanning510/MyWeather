@@ -12,7 +12,7 @@ class WeatherService {
     let session = URLSession(configuration: .default)
     
     func getCurrentWeather(lat: String, long: String, onSuccess: @escaping (CurrentWeather) -> Void, onError: @escaping (String) -> Void) {
-        let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?appid=cfd15c260a336ab7559d15b7e1a55d96&lat=\(lat)&lon=\(long)&units=imperial")
+        let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?appid=<APIKEY>&lat=\(lat)&lon=\(long)&units=imperial")
         
         let task = session.dataTask(with: url!) { (data, response, error) in
             
